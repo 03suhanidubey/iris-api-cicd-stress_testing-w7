@@ -39,7 +39,7 @@ jobs:
       uses: google-github-actions/get-gke-credentials@v1
       with:
         cluster_name: ${{ env.CLUSTER_NAME }}
-        location: ${{ env.LOCATION }}
+        location: us-central1-a
         project_id: ${{ env.PROJECT_ID }}
 
     - name: Apply Kubernetes manifests (deployment & service)
