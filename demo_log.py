@@ -138,7 +138,7 @@ async def exception_handler(request: Request, exc: Exception):
     )   
 
 
-@app.post('/predict')
+@app.api_route('/predict', methods=["GET", "POST"])
 async def predict(request: Request, iris_request: IrisRequest):
     print('Received request for prediction:', iris_request)
     # Start a new span for the prediction operation
