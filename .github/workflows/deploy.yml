@@ -1,0 +1,72 @@
+name: CI/CD to GKE (Artifact Registry)
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  PROJECT_ID: storied-radius-473212-g7
+  LOCATION: us-central1
+  REPOSITORY: iris-api-cicd
+  IMAGE_NAME: iris-api
+  CLUSTER_NAME: demo-log-mlops-w7
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Authenticate to GCP
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Configure docker for Artifact Registry
+      run: gcloud auth configure-docker ${{ env.LOCATION }}-docker.pkg.dev --quiet
+
+    - name: Build and push Docker image to Artifact Registry
+      uses: docker/build-push-action@v4
+      with:
+        push: true
+        tags: |
+          ${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          ${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
+        file: ./Dockerfile
+
+    - name: Get GKE credentials
+      uses: google-github-actions/get-gke-credentials@v1
+      with:
+        cluster_name: ${{ env.CLUSTER_NAME }}
+        location: ${{ env.LOCATION }}
+        project_id: ${{ env.PROJECT_ID }}
+
+    - name: Apply Kubernetes manifests (deployment & service)
+      run: |
+        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/service.yaml
+
+    - name: Set image in k8s deployment
+      run: |
+        kubectl set image deployment/iris-api iris-container=${{ env.LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        kubectl rollout status deployment/iris-api
+
+    - name: Apply HPA configuration
+      run: |
+        kubectl apply -f k8s/hpa.yaml
+        kubectl get hpa
+
+    - name: Stress Test with wrk
+      run: |
+        echo "Installing wrk for load testing..."
+        sudo apt-get update && sudo apt-get install -y wrk
+
+        EXTERNAL_IP=$(kubectl get svc iris-service --output jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        echo "External IP: $EXTERNAL_IP"
+
+        echo "Testing with 1000 concurrent connections..."
+        wrk -t12 -c1000 -d30s http://$EXTERNAL_IP/predict || true
+
+        echo "Testing with 2000 concurrent connections..."
+        wrk -t12 -c2000 -d30s http://$EXTERNAL_IP/predict || true
