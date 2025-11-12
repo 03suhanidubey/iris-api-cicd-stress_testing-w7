@@ -6,7 +6,7 @@ on:
 
 env:
   PROJECT_ID: storied-radius-473212-g7
-  LOCATION: us-central1
+  LOCATION: us-central1-a
   REPOSITORY: iris-api-cicd
   IMAGE_NAME: iris-api
   CLUSTER_NAME: demo-log-mlops-w7
