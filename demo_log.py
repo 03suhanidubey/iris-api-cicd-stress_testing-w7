@@ -54,7 +54,7 @@ app = FastAPI(title="Iris Prediction API",
 print('Loading pre-trained model...')
 # Load pre-trained model (assuming it's a joblib model)
 # Replace 'iris_model.pkl' with the path to your actual model file  
-model = joblib.load('iris_model.pkl')  # Load your pre-trained model
+model = joblib.load('model.joblib')  # Load your pre-trained model
 print('Model loaded successfully!')
 
 # Request model
