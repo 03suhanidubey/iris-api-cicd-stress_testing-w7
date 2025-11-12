@@ -139,9 +139,19 @@ async def exception_handler(request: Request, exc: Exception):
 
 
 @app.api_route('/predict', methods=["GET", "POST"])
-async def predict(request: Request, iris_request: IrisRequest):
+async def predict(request: Request, iris_request: IrisRequest = None):
+    # If it's a GET request, use sample data
+    if request.method == "GET":
+        sample_input = {
+            "sepal_length": 5.1,
+            "sepal_width": 3.5,
+            "petal_length": 1.4,
+            "petal_width": 0.2
+        }
+        iris_request = IrisRequest(**sample_input)
+        print("GET request received — using sample data for stress test")
+
     print('Received request for prediction:', iris_request)
-    # Start a new span for the prediction operation
     with tracer.start_as_current_span("predict_iris"):
         start_time = time.time()
         trace_id = trace.get_current_span().get_span_context().trace_id
@@ -180,7 +190,8 @@ async def predict(request: Request, iris_request: IrisRequest):
                 "error": str(e),
                 "input_data": input_data
             }))
-            raise HTTPException(status_code=500, detail="Internal Server Error, Prediction failed")    
+            raise HTTPException(status_code=500, detail="Internal Server Error, Prediction failed")
+  
 
 @app.get('/')
 async def root():
