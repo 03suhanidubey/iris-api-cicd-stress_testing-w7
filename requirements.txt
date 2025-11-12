@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+pydantic
+opentelemetry-api
+opentelemetry-sdk
+opentelemetry-exporter-gcp-trace  # for CloudTraceSpanExporter
+httpx             # For async HTTP client (used often with FastAPI testing)
+pytest            # For testing
+python-dotenv     # If you're using environment variable configs
+joblib            # For loading pre-trained models
+scikit-learn      # If you're using scikit-learn models
+numpy            # If your model requires numpy arrays
+pandas           # If your model requires pandas DataFramess
+

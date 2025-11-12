@@ -1,0 +1,21 @@
+apiVersion: "autoscaling/v2"
+kind: "HorizontalPodAutoscaler"
+metadata:
+  name: "iris-cluster-3-hpa-abjx"
+  namespace: "default"
+  labels:
+    app: "iris-cluster-3"
+spec:
+  scaleTargetRef:
+    kind: "Deployment"
+    name: "iris-cluster-3"
+    apiVersion: "apps/v1"
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: "Resource"
+    resource:
+      name: "cpu"
+      target:
+        type: "Utilization"
+        averageUtilization: 80
