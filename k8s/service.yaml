@@ -1,16 +1,15 @@
-apiVersion: "v1"
-kind: "Service"
+apiVersion: v1
+kind: Service
 metadata:
-  name: "iris-cluster-3-service"
-  namespace: "default"
+  name: iris-service
+  namespace: default
   labels:
-    app: "iris-cluster-3"
+    app: iris-api
 spec:
-  ports:
-  - protocol: "TCP"
-    port: 80
-    targetPort: 8200
   selector:
-    app: "iris-cluster-3"
-  type: "LoadBalancer"
-  loadBalancerIP: ""
+    app: iris-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: LoadBalancer
