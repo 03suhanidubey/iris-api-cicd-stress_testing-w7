@@ -14,6 +14,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8200
 
 # 6. Define the command to run the application
-CMD ["uvicorn", "demo_log:app", "--host", "0.0.0.0", "--port", "8200"]
+CMD ["uvicorn", "demo_log:app", "--host", "0.0.0.0", "--port", "8000"]
 # Note: The CMD command should be in JSON array format for proper execution
 # If you want to use shell form, it should be: CMD uvicorn iris_fast:app --host
