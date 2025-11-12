@@ -1,35 +1,35 @@
-apiVersion: "apps/v1"
-kind: "Deployment"
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: "iris-cluster-3"
-  namespace: "default"
+  name: iris-api
+  namespace: default
   labels:
-    app: "iris-cluster-3"
+    app: iris-api
 spec:
-  replicas: 3
+  replicas: 1   # start with 1 pod, autoscaler will scale to 3
   selector:
     matchLabels:
-      app: "iris-cluster-3"
+      app: iris-api
   template:
     metadata:
       labels:
-        app: "iris-cluster-3"
+        app: iris-api
     spec:
       containers:
-      - name: "iris-logger-d3-sha256-1"
-        image: "us-central1-docker.pkg.dev/inspiring-team-461016-m3/my-repo/iris_logger_d3@sha256:80098e860c91f9f72c2dc7d401afd48b3565dfbb13900b42c4a02ed37173fbf4"
+      - name: iris-container
+        image: us-central1-docker.pkg.dev/storied-radius-473212-g7/iris-api-cicd/iris-api:latest
         ports:
-        - containerPort: 8200
+        - containerPort: 8000
         readinessProbe:
           httpGet:
-            path: /ready_check
-            port: 8200
+            path: /docs
+            port: 8000
           initialDelaySeconds: 5
           periodSeconds: 10
         livenessProbe:
           httpGet:
-            path: /live_check
-            port: 8200
+            path: /docs
+            port: 8000
           initialDelaySeconds: 15
           periodSeconds: 20
         resources:
